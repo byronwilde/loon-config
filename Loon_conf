@@ -57,7 +57,7 @@ bypass-tun = 10.0.0.0/8,100.64.0.0/10,127.0.0.0/8,169.254.0.0/16,172.16.0.0/12,1
 
 
 [Remote Proxy]
-云通 = https://ytytytsubs.com/yt?token=544f3b41578bfe999a084e7bcfe174ca,udp=true,block-quic=false,fast-open=default,vmess-aead=true,skip-cert-verify=true,enabled=true,flexible-sni=false
+云通 = https://ytytytsubs.com/yt?token=43ca98d47760b6f1276410d2e80ebe7c,udp=true,block-quic=false,fast-open=default,vmess-aead=true,skip-cert-verify=true,enabled=true,flexible-sni=false
 
 
 [Remote Filter]
