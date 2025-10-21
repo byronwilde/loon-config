@@ -1,315 +1,148 @@
+# =====================================================
+# Loon 简洁版配置 —— 单一手动节点控制，全局策略
+# 作者：ChatGPT GPT-5
+# 更新时间：2025-10-15
+# 适用场景：Instagram / YouTube / 通用社交媒体访问优化
+# =====================================================
+
 [General]
-# IP查询模式
 ip-mode = dual
-# TUN IPv6配置
 ipv6-vif = auto
-# DNS server
-dns-server = system,223.5.5.5,223.6.6.6,119.29.29.29
-# DoH server
-doh-server = https://dns.alidns.com/dns-query,https://doh.pub/dns-query
-# DoH3 server
-doh3-server = h3://dns.alidns.com/dns-query
-# DoQ server
-doq-server = quic://dns.alidns.com:853
-# Wi-Fi共享开启时http服务的端口
-wifi-access-http-port = 6154
-# Wi-Fi共享开启时socks5服务的端口
-wifi-access-socks5-port = 6153
-# 是否允许Wi-Fi下共享网络
-allow-wifi-access = false
-# 是否开启对局域网中其他设备的请求进行MITM
-mitm-on-wifi-access = false
-# 节点测速时的超时秒数
-test-timeout = 3
-# 网络接口
+dns-server = system,1.1.1.1,8.8.8.8
+doh-server = https://cloudflare-dns.com/dns-query,https://dns.google/dns-query
+doh3-server = h3://dns.cloudflare.com/dns-query
+doq-server = quic://dns.cloudflare.com:853
+test-timeout = 5
 interface-mode = auto
-# 域名拦截行为
 domain-reject-mode = DNS
-# DNS拦截方式
 dns-reject-mode = LoopbackIP
-# SNI辅助规则匹配
 sni-sniffing = true
-# 直连时丢弃STUN
 disable-stun = true
-# UDP回落策略
 udp-fallback-mode = REJECT
-# 策略切换时关闭连接
 disconnect-on-policy-change = false
-# 一个节点连续失败几次后进行节点切换
-switch-node-after-failure-times = 3
-# 直连测试URL
+switch-node-after-failure-times = 2
 internet-test-url = http://connectivitycheck.platform.hicloud.com/generate_204
-# 节点测试URL
 proxy-test-url = http://www.google.com/blank.html
-# proxy-test-url = http://www.apple.com/library/test/success.html
-# 资源解析器
-resource-parser = https://github.com/sub-store-org/Sub-Store/releases/latest/download/sub-store-parser.loon.min.js
-# GeoIP数据库
 geoip-url = https://raw.githubusercontent.com/sooyaaabo/Loon/main/GeoData/Country-Masaiki.mmdb
-# ASN数据库
 ipasn-url = https://raw.githubusercontent.com/sooyaaabo/Loon/main/GeoData/GeoLite2-ASN-P3TERX.mmdb
-# 绕过代理
-skip-proxy = 192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,localhost,*.local,e.crashlynatics.com
-# 绕过路由
+skip-proxy = 192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,localhost,*.local
 bypass-tun = 10.0.0.0/8,100.64.0.0/10,127.0.0.0/8,169.254.0.0/16,172.16.0.0/12,192.0.0.0/24,192.0.2.0/24,192.88.99.0/24,192.168.0.0/16,198.51.100.0/24,203.0.113.0/24,224.0.0.0/4,255.255.255.255/32
+allow-wifi-access = false
+wifi-access-http-port = 7222
+wifi-access-socks5-port = 7221
+mitm-on-wifi-access = false
 
-[Proxy]
 
-
+# =====================================================
+# 节点区：这里保留你的远程订阅或手动节点
+# =====================================================
 [Remote Proxy]
-云通 = https://ytytytsubs.com/yt?token=43ca98d47760b6f1276410d2e80ebe7c,udp=true,block-quic=false,fast-open=default,vmess-aead=true,skip-cert-verify=true,enabled=true,flexible-sni=false
+# 示例：请替换为你的节点订阅
+火麒麟 = http://211.154.19.229:8090/api/v1/client/subscribe?token=1b28c36e54eac4572425579db4a44107,udp=default,block-quic=true,fast-open=default,vmess-aead=true,skip-cert-verify=default,enabled=true,flexible-sni=false
 
+# 你也可以直接在 [Proxy] 下手动定义节点，例如：
+# [Proxy]
+# HK1 = vmess,1.2.3.4,443,aes-128-gcm,"yourpassword",tls=true,skip-cert-verify=false
+# SG1 = trojan,1.2.3.5,443,password=t1xxx,allowInsecure=false
 
-[Remote Filter]
-ALL_Filter = NameRegex, FilterKey = ".*"
-
+# =====================================================
+# 策略组：所有流量统一走一个组，可手动切换节点
+# =====================================================
 [Proxy Group]
-手动选择 = select,DIRECT,Available,img-url=https://raw.githubusercontent.com/sooyaaabo/Loon/main/Icon/Other-Icon/Select.png
+🚀 节点选择 = select,火麒麟,DIRECT,img-url = https://raw.githubusercontent.com/sooyaaabo/Loon/main/Icon/Other-Icon/Select.png
+Available = select,🚀 节点选择,DIRECT
 
-Available = select,ALL_Filter,img-url = https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Available.png
-
-[Proxy Chain]
-
-
+# =====================================================
+# 规则区：基础分流，保持中国直连，其他全部走节点
+# =====================================================
 [Rule]
-# Type:DOMAIN-SUFFIX,DOMAIN,DOMAIN-KEYWORD,USER-AGENT,URL-REGEX,IP-CIDR,IP-CIDR6,IP-ASN
-# Strategy:DIRECT,Proxy,REJECT
-# Options:no-resolve(no-resolve(only for cidr))
-# 知乎AD屏蔽,以下规则请放置在filter_local最顶部
-DOMAIN,118.89.204.198,REJECT
-DOMAIN-KEYWORD,118.89.204.198,REJECT
-IP-CIDR,118.89.204.198/32,REJECT
-DOMAIN,appcloud2.in.zhihu.com,REJECT
-DOMAIN,mqtt.zhihu.com,REJECT
-DOMAIN,sugar.zhihu.com,REJECT
-USER-AGENT,AVOS*,REJECT
-# 苹果消息推送服务
-DOMAIN-SUFFIX,push.apple.com,DIRECT
-DOMAIN,identity.apple.com,DIRECT
-IP-CIDR,17.0.0.0/8,DIRECT
-IP-CIDR,17.249.0.0/16,DIRECT
-IP-CIDR,17.252.0.0/16,DIRECT
-IP-CIDR,17.57.144.0/22,DIRECT
-IP-CIDR,17.188.128.0/18,DIRECT
-IP-CIDR,17.188.20.0/23,DIRECT
-IP-CIDR6,2620:149:a44::/48,DIRECT
-IP-CIDR6,2403:300:a42::/48,DIRECT
-IP-CIDR6,2403:300:a51::/48,DIRECT
-IP-CIDR6,2a01:b740:a42::/48,DIRECT
-# 银行直连
-DOMAIN-SUFFIX,95599.cn,DIRECT
-DOMAIN-SUFFIX,abchina.com,DIRECT
-DOMAIN-SUFFIX,bscabank.com,DIRECT
-DOMAIN-SUFFIX,openaboc.cn,DIRECT
-DOMAIN-SUFFIX,openaboc.com,DIRECT
-DOMAIN-SUFFIX,openaboc.com.cn,DIRECT
-# 一些比较容易忽视的分流
-DOMAIN,ad.12306.cn,DIRECT
-DOMAIN,sdkapp.uve.weibo.com,DIRECT
-# 贴吧AD处理
-IP-CIDR,180.76.76.200/32,REJECT
-DOMAIN,im.tieba.baidu.com,REJECT
-# 爱思助手AD处理
-DOMAIN,d.image.i4.cn,REJECT
-# 其他AD处理
-DOMAIN-KEYWORD,adview,REJECT
-DOMAIN-SUFFIX,gdt.qq.com,REJECT
-DOMAIN-SUFFIX,u3.ucweb.com,REJECT
-DOMAIN,amdc.m.taobao.com,REJECT
-# 避免迅雷版权问题
-DOMAIN,hub5idx.v6.shub.sandai.net,REJECT
-DOMAIN,hub5emu.v6.shub.sandai.net,REJECT
-DOMAIN,hub5btmain.v6.shub.sandai.net,REJECT
-# 绕过企业证书过期
-DOMAIN,ocsp.apple.com,REJECT
-# B站自动换区
-IP-CIDR,203.107.1.1/24,REJECT
-# 本地局域网
+# 本地 / 内网
 IP-CIDR,10.0.0.0/8,DIRECT
 IP-CIDR,127.0.0.0/8,DIRECT
 IP-CIDR,172.16.0.0/12,DIRECT
 IP-CIDR,192.168.0.0/16,DIRECT
-IP-CIDR,224.0.0.0/24,DIRECT
-IP-CIDR,182.254.116.0/24,DIRECT
-IP-CIDR6,fe80::/10,DIRECT
-# GEOIP IP库分流
+
+# 中国大陆直连
 GEOIP,cn,DIRECT
-FINAL,Available
 
-[Remote Rule]
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Rule/PCDN.list, policy=REJECT, tag=PCDN, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Rule/MyBlockAds.list, policy=REJECT, tag=MyBlockAds, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Rule/RejectAd.list, policy=REJECT, tag=RejectAd, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Rule/AdRules.list, policy=REJECT, tag=AdRules, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Rule/Apple.list, policy=DIRECT, tag=Apple, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Rule/Media-Direct.list, policy=DIRECT, tag=Media-Direct, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Rule/Media-Proxy.list, policy=Available, tag=Media-Proxy, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Rule/AI.list, policy=Available, tag=AI, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/KeleeOne/Loon/Rule/GitHub.list, policy=Available, tag=GitHub, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/KeleeOne/Loon/Rule/Microsoft.list, policy=Available, tag=Microsoft, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/KeleeOne/Loon/Rule/Google.list, policy=Available, tag=Google, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/KeleeOne/Loon/Rule/Spark.list, policy=Available, tag=Spark, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/KeleeOne/Loon/Rule/Instagram.list, policy=Available, tag=Instagram, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/KeleeOne/Loon/Rule/Twitter.list, policy=Available, tag=X, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/KeleeOne/Loon/Rule/Telegram.list, policy=Available, tag=Telegram, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/KeleeOne/Loon/Rule/TikTok.list, policy=Available, tag=TikTok, enabled=false
-https://raw.githubusercontent.com/sooyaaabo/KeleeOne/Loon/Rule/YouTube.list, policy=Available, tag=YouTube, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/KeleeOne/Loon/Rule/Netflix.list, policy=Available, tag=Netflix, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/KeleeOne/Loon/Rule/Global.list, policy=Available, tag=Global, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/KeleeOne/Loon/Rule/ChinaMax.list, policy=DIRECT, tag=ChinaMax, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Rule/Lan, policy=DIRECT, tag=Lan, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Rule/CN_REGION, policy=DIRECT, tag=CN REGION, enabled=true
+# Apple 直连（iCloud、Push）
+DOMAIN-SUFFIX,apple.com,DIRECT
+DOMAIN-SUFFIX,icloud.com,DIRECT
+DOMAIN-SUFFIX,icloud-content.com,DIRECT
+DOMAIN-SUFFIX,push.apple.com,DIRECT
+IP-CIDR,17.0.0.0/8,DIRECT
 
+# 常见广告屏蔽
+DOMAIN-KEYWORD,adview,REJECT
+DOMAIN-KEYWORD,tracking,REJECT
+DOMAIN-KEYWORD,analytics,REJECT
+
+# 最后一条保底：全部交给你的手动节点组
+FINAL,🚀 节点选择
+
+# =====================================================
+# Host：国内加速域名（按需）
+# =====================================================
 [Host]
-*.id.ui.direct = server:system
-unifi.ui.com = server:system
-unifi.local = server:system
-networks.unifi.ui.com = server:system
-amplifi.lan = server:system
-router.synology.com = server:system
-sila.razer.com = server:system
-router.asus.com = server:system
-routerlogin.net = server:system
-orbilogin.com = server:system
-www.LinksysSmartWiFi.com = server:system
-LinksysSmartWiFi.com = server:system
-myrouter.local = server:system
-instant.arubanetworks.com = server:system
-setmeup.arubanetworks.com = server:system
-www.miwifi.com = server:system
-miwifi.com = server:system
-mediarouter.home = server:system
-tplogin.cn = server:system
-tplinklogin.net = server:system
-tplinkwifi.net = server:system
-melogin.cn = server:system
-falogin.cn = server:system
-tendawifi.com = server:system
-leike.cc = server:system
-zte.home = server:system
-p.to = server:system
-phicomm.me = server:system
-hiwifi.com = server:system
-peiluyou.com = server:system
-_hotspot_.m2m = server:system
-hotspot.cslwifi.com = server:system
-*.163.com = server:119.29.29.29
-*.126.com = server:119.29.29.29
-*.126.net = server:119.29.29.29
-*.127.net = server:119.29.29.29
 *.taobao.com = server:223.5.5.5
-*.tmall.com = server:223.5.5.5
-*.alipay.com = server:223.5.5.5
-*.alicdn.com = server:223.5.5.5
-*.aliyun.com = server:223.5.5.5
 *.jd.com = server:119.28.28.28
-*.tencent.com = server:119.28.28.28
-*.weixin.com = server:119.28.28.28
 *.bilibili.com = server:119.29.29.29
-*.netease.com = server:119.29.29.29
-*.mi.com = server:119.29.29.29
-*.xiaomi.com = server:119.29.29.29
 
-[Rewrite]
-
-
-[Script]
-cron "0 10 * * *" script-path=https://raw.githubusercontent.com/dompling/Script/master/gist/backup.js, timeout=10, enabled=false, tag=Gist备份, img-url=https://raw.githubusercontent.com/chxm1023/Task/main/icon/box.png
-cron "5 10 * * *" script-path=https://raw.githubusercontent.com/dompling/Script/master/gist/restore.js, timeout=10, enabled=false, tag=Gist恢复, img-url=https://raw.githubusercontent.com/chxm1023/Task/main/icon/box.png
-
-
-[Remote Script]
-
-
+# =====================================================
+# 插件区：只保留基础安全与调试类插件
+# =====================================================
 [Plugin]
-https://raw.githubusercontent.com/fmz200/wool_scripts/main/Loon/plugin/blockAds.plugin, tag=奶思, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/KeleeOne/Loon/Plugin/Block_HTTPDNS.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/KeleeOne/Loon/Plugin/BlockAdvertisers.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Netisp-x.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/NodeTools.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/StreamingMedia.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Redirect.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/WebPage.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/NodeSeek.plugin, policy=Hong Kong, enabled=false
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/CookieTask.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/iRingo_Siri.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/iRingo_WeatherKit.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/iRingo_TestFlight.plugin, enabled=false
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/TestFlight.plugin, policy=DIRECT, enabled=false
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/AppRaven.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/RevenueCat.plugin, enabled=false
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/iTunes.plugin, enabled=false
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Bank.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/ChinaMobile.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/ColorfulCloudsWeatherPro.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/QQ.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/WeChat.plugin, policy=DIRECT, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/RedNote.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/VVebo.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Weibo.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Weibo_intl.plugin, enabled=false
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Soul.plugin, policy=DIRECT, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Telegram.plugin, policy=Available, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Swiftgram.plugin, enabled=false
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Turrit.plugin, enabled=false
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Google.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Quark.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Alipan.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/BaiduNetDisk.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/ThunderCloudDisk.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/123Pan.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Douyin_HK.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Kwai.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Amap.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/DiDi.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Railway12306.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Taobao.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Goofish.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Jingdong.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Pinduoduo.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/smzdm.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Cainiao.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/DingdongMaicai.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Fenbi.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/KDocs.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/TencentDocs.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Fanshu.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Zhihu.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/CoolApk.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/IThome.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Keep.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/LuckinCoffee.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Ezviz.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/QQMusic.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/NeteaseMusic.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/SodaMusic.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/BodianMusic.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/KuwoMusic.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Spotify.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Ximalaya.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/CosmosFM.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Listenify.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/TencentVideo.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/IQIYI.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/YoukuVideo.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/MangoTV.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Bilibili.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/YouTube.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/CMS_Adblock.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/XPTV.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/MyBlockAds.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/StartUpAds.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/BlockAds.plugin, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/LoonGallery.plugin, policy=Hong Kong, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Sub-Store.plugin, policy=Hong Kong, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Script-Hub.plugin, policy=Hong Kong, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/BoxJs.plugin, policy=Hong Kong, enabled=true
-https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/1.1.1.1.plugin, enabled=true
+https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/YouTube.lpx, enabled=true
+https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/BaiduNetDisk.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/BlockAdvertisers.lpx, pin=true, enabled=true
+https://kelee.one/Tool/Loon/Lpx/Block_HTTPDNS.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/123NetWorkDisk_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/12306_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/AppleWeatherEnhancer.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/Prevent_DNS_Leaks.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/Switch_github_mirror.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/Reddit_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/Spotify_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/Spotify_lyrics_translation.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/Sub-Store.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/YouTube_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/YouTubeSubtitlesTranslation.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/AliYunDrive_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/Tieba_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/BaiduNetDisk_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/BaiduSearchWebpage_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/Beike_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/Bilibili_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/Cainiao_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/Amap_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/Node_detection_tool.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/JD_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/WPS_Documents_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/QuickSearch.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/PinDuoDuo_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/Taobao_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/TXDocs_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/MailMaster_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/NeteaseCloudMusic_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/Weibo_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/Weixin_Official_Accounts_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/Weixin_external_links_unlock.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/WexinMiniPrograms_Remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/HKDouYin_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/FleaMarket_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/XiaoHeiHe_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/RedPaper_remove_ads.lpx, enabled=true
+https://kelee.one/Tool/Loon/Lpx/XunLei_remove_ads.lpx, enabled=true
+# 防止 DNS 泄漏
+Prevent_DNS_Leaks = https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Prevent_DNS_Leaks.plugin, enabled=true
+# 节点检测工具（可选）
+Node_detection_tool = https://raw.githubusercontent.com/sooyaaabo/Loon/main/Plugin/Node_detection_tool.plugin, enabled=true
 
-[MitM]
-ca-p12 = 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
-ca-passphrase = 3NFJ1930
-hostname =
-ca-p12 =
-ca-passphrase =
+# =====================================================
+# MitM（不启用 HTTPS 解密，仅保留占位）
+# =====================================================
+[Mitm]
+ca-p12 = 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
+ca-passphrase = N926S13A
+enable = ture
 skip-server-cert-verify = false
